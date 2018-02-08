@@ -59,15 +59,14 @@ public class QueryParser {
                 newColumn = new ColObj(extractedName, extractedType, extractedAttr, extractedDefaultVal, extractedSize, extractedAddl);
         }
     }
-
-
+    
     public static void main(String[] args) {
 
         // TEST Script inputs...
-        String queryStringOld = "SSN VARCHAR2(12 CHAR) DEFAULT 'SEATTLE'";
+        String queryStringOld = "SSN VARCHAR2(12 CHAR)";
         initQueryObj(queryStringOld, "old");
 
-        String queryStringNew = "SSN VARCHAR2(25 CHAR) DEFAULT 'SEATTLE'";
+        String queryStringNew = "SSN VARCHAR2(25 CHAR) DEFAULT '123-45-6789'";
         initQueryObj(queryStringNew, "new");
         // TEST Script inputs ...
 
@@ -115,6 +114,14 @@ public class QueryParser {
         System.out.println("Old: "+oldColumn.getCol_attr());
         System.out.println("New: "+newColumn.getCol_attr());
 
+        // -- Line Col Default Value
+        Boolean defaultValueChanged = (
+                oldColumn.hasDefault() == newColumn.hasDefault()
+        );
+        System.out.println("\nColumn Default Value: "+((!defaultValueChanged)? "<< Changed":""));
+        System.out.println("Old: "+"'"+(oldColumn.hasDefault()? oldColumn.getDefault() : "N/A")+"'");
+        System.out.println("New: "+"'"+(newColumn.hasDefault()? newColumn.getDefault() : "N/A")+"'");
+
         // -- Line Col IsIndex
         Boolean indexStateUnchanged = (
                 oldColumn.isIndex()==newColumn.isIndex()
@@ -157,9 +164,6 @@ public class QueryParser {
 
         // EVALUATION BLOCK
         System.out.println("\n");
-
-    // Condition 5: Column type changed from String-Compatible type.
-    // Condition 6: Column type changed to String-Compatible type.
 
 
     // Condition 1: Column properties unchanged but size increased...
@@ -204,6 +208,9 @@ public class QueryParser {
         if (!FKStateUnchanged) {
 
         }
+
+    // Condition 5: Column type changed from String-Compatible type.
+    // Condition 6: Column type changed to String-Compatible type.
 
         // Refactor to be a default case.
         if (namesAreSame
