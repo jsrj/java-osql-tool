@@ -59,7 +59,7 @@ public class QueryParser {
                 newColumn = new ColObj(extractedName, extractedType, extractedAttr, extractedDefaultVal, extractedSize, extractedAddl);
         }
     }
-    
+
     public static void main(String[] args) {
 
         // TEST Script inputs...
@@ -187,27 +187,13 @@ public class QueryParser {
         }
     // Condition 3: Column Removed.
     // Condition 4: Column added.
-        if (!namesAreSame) {
-
-        }
-        if (!attrsAreSame) {
-
-        }
-        if (!indexStateUnchanged) {
-
-        }
-        if (!uniqueStateUnchanged) {
-
-        }
-        if (!nullableStateUnchanged) {
-
-        }
-        if (!PKStateUnchanged) {
-
-        }
-        if (!FKStateUnchanged) {
-
-        }
+        if (!namesAreSame)           { }
+        if (!attrsAreSame)           { }
+        if (!indexStateUnchanged)    { }
+        if (!uniqueStateUnchanged)   { }
+        if (!nullableStateUnchanged) { }
+        if (!PKStateUnchanged)       { }
+        if (!FKStateUnchanged)       { }
 
     // Condition 5: Column type changed from String-Compatible type.
     // Condition 6: Column type changed to String-Compatible type.
