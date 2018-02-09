@@ -57,7 +57,7 @@ public class Statement {
     private void setPrimary_key     (String  primary_key     ) {this.primary_key     =primary_key;      }
     private void setForeign_key     (String  foreign_key     ) {this.foreign_key     =foreign_key;      }
     private void setHasDefault      (boolean hasDefault      ) {this.hasDefault      =hasDefault;       }
-    private void setDefaultVal      (String defaultVal       ) {this.defaultVal = (this.hasDefault)? "DEFAULT '"+defaultVal+"'" : ""; }
+    private void setDefaultVal      (String defaultVal       ) {this.defaultVal = (this.hasDefault)? "DEFAULT "+defaultVal : ""; }
 
     // Constructor
     public Statement(

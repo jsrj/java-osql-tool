@@ -1,3 +1,5 @@
+import java.util.regex.Pattern;
+
 public class QueryParser {
 
     private static ColObj oldColumn;
@@ -5,68 +7,65 @@ public class QueryParser {
 
     private static void initQueryObj(String queryString, String which) {
         // Precondition 0: Generate Column Objects based on queryStrings.
-        String extractedName = "";
-        String extractedType = "";
-        String extractedAttr = "";
-        int    extractedSize = 0;
-        String extractedDefaultVal = "";
-        String extractedAddl;
+        String[] qsComponents =queryString.split("\\s*(\\(|\\)|,|\\s)\\s*");
+        String extractedName  = qsComponents[0];
+        String extractedType  = qsComponents[1];
+        int    extractedSize  = Integer.parseInt(qsComponents[2]);
+        String extractedAttr  = qsComponents[3];
+        String extractedDVal  = "";
+        String extractedAddl  = "";
 
-        String section = "";
-        String target  = "name";
         boolean defaultValueFound = false;
+        String  prevKeyword       = "";
 
-        for (String c: queryString.split("")){
-            if (c.equals(" ") && target.equals("name")) {
-                extractedName = section;
-                section       = "";
-                target        = "type";
-            }
-            if (c.equals("(") && target.equals("type")) {
-                extractedType = section;
-                section       = "";
-                target        = "size";
-            }
-            if (c.equals(" ") && target.equals("size")) {
-                extractedSize = Integer.parseInt(section);
-                section       = "";
-                target        = "attr";
-            }
-            if (c.equals(")") && target.equals("attr")) {
-                extractedAttr = section;
-                section       = "";
-                target        = "addl";
-            }
-            if (c.equals("'") && target.equals("addl") && !defaultValueFound) {
-                defaultValueFound = true;
-            }
-            if (c.equals("'") && target.equals("addl") && defaultValueFound) {
-                extractedDefaultVal = section;
-                section = "";
-            }
-            if (c.contains(" ")||c.contains(")")||c.contains("(") || c.contains("'")){/*continue...*/}
-            else {
-                section = section.concat(c);
+        for (String component: qsComponents) {
+            if (!component.equals(extractedName) &&
+                !component.equals(extractedType) &&
+                !component.equals(extractedAttr) &&
+                !component.equals(""+extractedSize)
+                    ) {
+
+                // For extracting Default Values
+                if (defaultValueFound) {
+                    extractedDVal = component;
+                    defaultValueFound = false;
+                }
+                if (component.toUpperCase().matches("DEFAULT")) {
+                    defaultValueFound = true;
+                }
+
+                // For extracting compound keywords
+                boolean compoundPrefix = component.toUpperCase().matches("NOT|PRIMARY|SECONDARY|FOREIGN");
+                boolean compoundSuffix = component.toUpperCase().matches("NULL|KEY");
+
+                extractedAddl += (
+                        // Extracts compound keywords and concatenates them, then appends a semicolon.
+                        (compoundSuffix   && !(prevKeyword == "")) ? (prevKeyword+component+";") :
+
+                        // Extracts all other additional keywords.
+                        ((!compoundPrefix && !compoundSuffix)      ? component+";" : "")
+                );
+
+
+                prevKeyword = (compoundPrefix) ? component : "";
             }
         }
-        extractedAddl = section;
-
         switch(which){
             case "old":
-                oldColumn = new ColObj(extractedName, extractedType, extractedAttr, extractedDefaultVal, extractedSize, extractedAddl);
+                oldColumn = new ColObj(extractedName, extractedType, extractedAttr, extractedDVal, extractedSize, extractedAddl);
 
             case "new":
-                newColumn = new ColObj(extractedName, extractedType, extractedAttr, extractedDefaultVal, extractedSize, extractedAddl);
+                newColumn = new ColObj(extractedName, extractedType, extractedAttr, extractedDVal, extractedSize, extractedAddl);
         }
     }
 
     public static void main(String[] args) {
 
         // TEST Script inputs...
-        String queryStringOld = "SSN VARCHAR2(12 CHAR)";
+        String queryStringOld = "SSN VARCHAR2(15,CHAR) NOT NULL PRIMARY KEY INDEX";
         initQueryObj(queryStringOld, "old");
 
-        String queryStringNew = "SSN VARCHAR2(25 CHAR) DEFAULT '123-45-6789'";
+        String queryStringNew = "SSN VARCHAR2(25 CHAR) DEFAULT '123-45-6789' FOREIGN KEY UNIQUE ENABLE";
         initQueryObj(queryStringNew, "new");
         // TEST Script inputs ...
 
