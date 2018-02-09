@@ -1,3 +1,4 @@
+import javax.swing.plaf.nimbus.State;
 import java.util.regex.Pattern;
 
 public class QueryParser {
@@ -62,10 +63,10 @@ public class QueryParser {
     public static void main(String[] args) {
 
         // TEST Script inputs...
-        String queryStringOld = "SSN VARCHAR2(15,CHAR) NOT NULL PRIMARY KEY INDEX";
+            String queryStringOld = "SSN VARCHAR(15 CHAR) NOT NULL PRIMARY KEY INDEX";
         initQueryObj(queryStringOld, "old");
 
-        String queryStringNew = "SSN VARCHAR2(25 CHAR) DEFAULT '123-45-6789' FOREIGN KEY UNIQUE ENABLE";
+        String queryStringNew = "SSN NUMBER(25,2) DEFAULT '123-45-6789' FOREIGN KEY UNIQUE ENABLE";
         initQueryObj(queryStringNew, "new");
         // TEST Script inputs ...
 
@@ -165,15 +166,12 @@ public class QueryParser {
         System.out.println("\n");
 
 
+        Statement alterStatement = new Statement("TESTTABLE", "alter-column", newColumn);
+
     // Condition 1: Column properties unchanged but size increased...
         if (!sizesAreSame && (namesAreSame && typesAreSame && attrsAreSame)) {
             if (oldColumn.getCol_size() < newColumn.getCol_size()) {
 
-                Statement alterColSize = new Statement("TESTTABLE", "alter-column", newColumn);
-                String  alterStatement = alterColSize.generate();
-
-                System.out.println("-- NEW STATEMENT: --");
-                System.out.println(alterStatement);
             } else {
     // Condition 2: Column attributes unchanged, size decreased.
                 System.out.println("-- WARNING: --");
@@ -181,8 +179,7 @@ public class QueryParser {
             }
         }
         if (!typesAreSame) {
-            System.out.println("-- WARNING: --");
-            System.out.println("Data type changed between two incompatible types (e.g. String to Integer). Cannot alter column without first migrating row data.");
+            System.out.println("-- TYPE CHANGE WARNING: "+"[ "+oldColumn.getCol_type()+" => "+newColumn.getCol_type()+" ] --");
         }
     // Condition 3: Column Removed.
     // Condition 4: Column added.
@@ -209,6 +206,9 @@ public class QueryParser {
                 && FKStateUnchanged
         ) {
             System.out.println("-- NO CHANGES MADE --");
+        } else {
+            System.out.println("-- NEW STATEMENT:");
+            System.out.println(alterStatement.generate());
         }
 
 
